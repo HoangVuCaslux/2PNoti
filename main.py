@@ -459,11 +459,9 @@ def build_head_table(
     ].copy()
 
     # Chỉ lấy đúng thứ hiện tại
-    region_df = region_df[
-        region_df["Date"]
-        .dt.dayofweek
-        ==
-        weekday_today
+    same_day_df = region_df[
+        region_df["Date"].dt.dayofweek
+        == weekday_today
     ]
 
     last_7_days = (
@@ -491,38 +489,40 @@ def build_head_table(
         range(10)
     ):
 
-        temp = region_df[
-            region_df["Head"]
-            == head
-        ]
-
-        count_7d = temp[
-            temp["Date"]
-            >=
-            last_7_days
-        ].shape[0]
-
-        count_14d = temp[
-            temp["Date"]
-            >=
-            last_14_days
-        ].shape[0]
-
-        count_30d = temp[
-            temp["Date"]
-            >=
-            last_30_days
-        ].shape[0]
-
-        total_count = (
-            temp.shape[0]
-        )
+    temp_all = region_df[
+        region_df["Head"] == head
+    ]
+    
+    temp_same_day = same_day_df[
+        same_day_df["Head"] == head
+    ]
+    
+    count_7d = temp_all[
+        temp_all["Date"] >= last_7_days
+    ].shape[0]
+    
+    count_14d = temp_all[
+        temp_all["Date"] >= last_14_days
+    ].shape[0]
+    
+    count_30d = temp_all[
+        temp_all["Date"] >= last_30_days
+    ].shape[0]
+    
+    same_day_count = (
+        temp_same_day.shape[0]
+    )
+    
+    total_count = (
+        temp_all.shape[0]
+    )
 
         rows.append([
             head,
             count_7d,
             count_14d,
             count_30d,
+            same_day_count,
             total_count
         ])
 
@@ -533,6 +533,7 @@ def build_head_table(
             "Count7D",
             "Count14D",
             "Count30D",
+            "SameDay",
             "TotalCount"
         ]
     )
@@ -616,7 +617,8 @@ def build_message(
                 f"Dau {row['Head']} | "
                 f"7D:{row['Count7D']} | "
                 f"14D:{row['Count14D']} | "
-                f"30D:{row['Count30D']}\n"
+                f"30D:{row['Count30D']} | "
+                f"SameDay:{row['SameDay']}\n"
             )
 
     return msg
