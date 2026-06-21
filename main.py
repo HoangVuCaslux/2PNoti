@@ -33,20 +33,16 @@ HEADERS = {
 
 def send_telegram(message):
 
-    print("BOT_TOKEN:", BOT_TOKEN)
-    print("CHAT_ID:", CHAT_ID)
-
     url = (
-        f"https://api.telegram.org/bot"
-        f"{BOT_TOKEN}/sendMessage"
+        f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
     )
 
-    print("URL:", url)
+    print(url)
 
     r = requests.post(
         url,
         json={
-            "chat_id": CHAT_ID,
+            "chat_id": str(CHAT_ID),
             "text": message
         },
         timeout=30
@@ -708,3 +704,4 @@ def main():
 if __name__ == "__main__":
 
     main()
+    send_telegram("TEST FROM GITHUB")
