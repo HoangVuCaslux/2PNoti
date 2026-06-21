@@ -33,10 +33,15 @@ HEADERS = {
 
 def send_telegram(message):
 
+    print("BOT_TOKEN:", BOT_TOKEN)
+    print("CHAT_ID:", CHAT_ID)
+
     url = (
         f"https://api.telegram.org/bot"
         f"{BOT_TOKEN}/sendMessage"
     )
+
+    print("URL:", url)
 
     r = requests.post(
         url,
@@ -47,11 +52,9 @@ def send_telegram(message):
         timeout=30
     )
 
-    print(
-        "Telegram Status:",
-        r.status_code
-    )
-
+    print("Status:", r.status_code)
+    print("Response:", r.text)
+    
 # ==================================================
 # MB
 # ==================================================
