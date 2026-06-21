@@ -30,6 +30,6 @@ jobs:
 
       - name: Run lottery report
         env:
-          BOT_TOKEN: ${{ secrets.8595902209:AAE8uc01daiaWB82zRm1GtOrWFULjFKDJJU }}
-          CHAT_ID: ${{ secrets.8702662620 }}
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+          CHAT_ID: ${{ secrets.CHAT_ID }}
         run: python main.py
