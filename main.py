@@ -458,7 +458,7 @@ def build_head_table(
         == region_name
     ].copy()
 
-    # Chỉ lấy đúng thứ hiện tại
+    # Các kỳ cùng thứ hiện tại
     same_day_df = region_df[
         region_df["Date"].dt.dayofweek
         == weekday_today
@@ -466,56 +466,50 @@ def build_head_table(
 
     last_7_days = (
         today
-        -
-        pd.Timedelta(days=6)
+        - pd.Timedelta(days=6)
     )
 
     last_14_days = (
         today
-        -
-        pd.Timedelta(days=13)
+        - pd.Timedelta(days=13)
     )
 
     last_30_days = (
         today
-        -
-        pd.Timedelta(days=29)
+        - pd.Timedelta(days=29)
     )
 
     rows = []
 
-    for head in map(
-        str,
-        range(10)
-    ):
+    for head in map(str, range(10)):
 
-    temp_all = region_df[
-        region_df["Head"] == head
-    ]
-    
-    temp_same_day = same_day_df[
-        same_day_df["Head"] == head
-    ]
-    
-    count_7d = temp_all[
-        temp_all["Date"] >= last_7_days
-    ].shape[0]
-    
-    count_14d = temp_all[
-        temp_all["Date"] >= last_14_days
-    ].shape[0]
-    
-    count_30d = temp_all[
-        temp_all["Date"] >= last_30_days
-    ].shape[0]
-    
-    same_day_count = (
-        temp_same_day.shape[0]
-    )
-    
-    total_count = (
-        temp_all.shape[0]
-    )
+        temp_all = region_df[
+            region_df["Head"] == head
+        ]
+
+        temp_same_day = same_day_df[
+            same_day_df["Head"] == head
+        ]
+
+        count_7d = temp_all[
+            temp_all["Date"] >= last_7_days
+        ].shape[0]
+
+        count_14d = temp_all[
+            temp_all["Date"] >= last_14_days
+        ].shape[0]
+
+        count_30d = temp_all[
+            temp_all["Date"] >= last_30_days
+        ].shape[0]
+
+        same_day_count = (
+            temp_same_day.shape[0]
+        )
+
+        total_count = (
+            temp_all.shape[0]
+        )
 
         rows.append([
             head,
@@ -538,11 +532,12 @@ def build_head_table(
         ]
     )
 
+    # Giữ đúng thứ tự 0 -> 9
+    result["Head"] = result["Head"].astype(int)
+
     result = (
         result
-        .sort_values(
-            "Head"
-        )
+        .sort_values("Head")
         .reset_index(drop=True)
     )
 
@@ -551,14 +546,11 @@ def build_head_table(
         "Rank",
         range(
             1,
-            len(result)+1
+            len(result) + 1
         )
     )
 
-    return (
-        result
-        .head(10)
-    )
+    return result
 
 # ==================================================
 # TELEGRAM MESSAGE
@@ -574,16 +566,14 @@ def build_message(
     msg = ""
 
     msg += (
-        "🎯 LOTTERY REPORT\n\n"
+        "🎯 2P REPORT\n\n"
     )
 
     msg += (
         "TOP 10 SO CHUA RA\n\n"
     )
 
-    for _, row in (
-        df_missing.iterrows()
-    ):
+    for _, row in df_missing.iterrows():
 
         msg += (
             f"{row['Number2D']} | "
@@ -596,22 +586,16 @@ def build_message(
     for region_name, region_df in [
 
         ("MB", df_head_mb),
-
         ("MT", df_head_mt),
-
         ("MN", df_head_mn)
 
     ]:
 
         msg += (
-            f"\n{region_name}\n"
+            f"\n===== {region_name} =====\n"
         )
 
-        for _, row in (
-            region_df
-            .head(10)
-            .iterrows()
-        ):
+        for _, row in region_df.iterrows():
 
             msg += (
                 f"Dau {row['Head']} | "
@@ -622,7 +606,6 @@ def build_message(
             )
 
     return msg
-
 # ==================================================
 # MAIN
 # ==================================================
