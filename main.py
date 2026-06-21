@@ -14,8 +14,8 @@ URL_MB = "https://xskt.com.vn/xsmb/200-ngay"
 URL_MT = "https://xskt.com.vn/xsmt/200-ngay"
 URL_MN = "https://xskt.com.vn/xsmn/200-ngay"
 
-BOT_TOKEN = os.getenv("8595902209:AAE8uc01daiaWB82zRm1GtOrWFULjFKDJJU")
-CHAT_ID = os.getenv("8702662620")
+BOT_TOKEN = os.getenv("BOT_TOKEN")
+CHAT_ID = os.getenv("CHAT_ID")
 
 HEADERS = {
     "User-Agent": (
