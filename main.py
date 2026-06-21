@@ -540,13 +540,7 @@ def build_head_table(
     result = (
         result
         .sort_values(
-            [
-                "Count30D",
-                "Count14D",
-                "Count7D",
-                "TotalCount"
-            ],
-            ascending=False
+            "Head"
         )
         .reset_index(drop=True)
     )
@@ -614,7 +608,7 @@ def build_message(
 
         for _, row in (
             region_df
-            .head(5)
+            .head(10)
             .iterrows()
         ):
 
@@ -704,4 +698,3 @@ def main():
 if __name__ == "__main__":
 
     main()
-    send_telegram("TEST FROM GITHUB")
