@@ -557,11 +557,16 @@ def build_head_table(
 
 def build_pair_analysis(
     df,
-    df_top10_missing
+    df_top10_missing,
+    region_name
 ):
 
+    region_df = df[
+        df["Region"] == region_name
+    ].copy()
+
     today = (
-        df["Date"]
+        region_df["Date"]
         .max()
         .normalize()
     )
@@ -578,10 +583,8 @@ def build_pair_analysis(
 
     result_text = ""
 
-    # Top 3 số chưa ra
     target_numbers = (
-        df_top10_missing
-        ["Number2D"]
+        df_top10_missing["Number2D"]
         .head(3)
         .tolist()
     )
@@ -594,32 +597,30 @@ def build_pair_analysis(
             f"\n===== {number2d} =====\n"
         )
 
-        # ==================================
-        # PHẦN 1
-        # ĐẦU SỐ ĐI VỚI ĐUÔI CUỐI
-        # Ví dụ 4 của 74
-        # ==================================
-
         result_text += (
             f"\nLast Digit = {last_digit}\n"
         )
 
+        # -----------------------------
+        # Đầu số đi với đuôi cuối
+        # -----------------------------
+
         for head in map(str, range(10)):
 
-            temp14 = df[
-                (df["Number3D"].str[0] == head)
+            temp14 = region_df[
+                (region_df["Number3D"].str[0] == head)
                 &
-                (df["Number3D"].str[-1] == last_digit)
+                (region_df["Number3D"].str[-1] == last_digit)
                 &
-                (df["Date"] >= last_14_days)
+                (region_df["Date"] >= last_14_days)
             ]
 
-            temp30 = df[
-                (df["Number3D"].str[0] == head)
+            temp30 = region_df[
+                (region_df["Number3D"].str[0] == head)
                 &
-                (df["Number3D"].str[-1] == last_digit)
+                (region_df["Number3D"].str[-1] == last_digit)
                 &
-                (df["Date"] >= last_30_days)
+                (region_df["Date"] >= last_30_days)
             ]
 
             result_text += (
@@ -628,10 +629,9 @@ def build_pair_analysis(
                 f"30D:{len(temp30)}\n"
             )
 
-        # ==================================
-        # PHẦN 2
-        # ĐẦU SỐ ĐI VỚI 74
-        # ==================================
+        # -----------------------------
+        # Đầu số đi với chính cặp số
+        # -----------------------------
 
         result_text += (
             f"\nExact {number2d}\n"
@@ -645,8 +645,8 @@ def build_pair_analysis(
             )
 
             count = (
-                df[
-                    df["Number3D"]
+                region_df[
+                    region_df["Number3D"]
                     ==
                     target_3d
                 ]
@@ -654,7 +654,7 @@ def build_pair_analysis(
             )
 
             result_text += (
-                f"{head} : {count}\n"
+                f"{head}:{count}\n"
             )
 
     return result_text
@@ -666,138 +666,38 @@ def build_pair_analysis(
 def build_message(
     df,
     df_missing,
-    df_head_mb,
-    df_head_mt,
-    df_head_mn
+    region_name,
+    region_df
 ):
 
     msg = ""
-    
+
     msg += (
-        "📊 2P ANALYSIS\n\n"
+        f"📊 {region_name} ANALYSIS\n\n"
     )
 
-    # ==================================
-    # HEAD ANALYSIS
-    # ==================================
+    msg += (
+        "HEAD ANALYSIS\n\n"
+    )
+
+    for _, row in region_df.iterrows():
+
+        msg += (
+            f"Dau {row['Head']} | "
+            f"7D:{row['Count7D']} | "
+            f"14D:{row['Count14D']} | "
+            f"30D:{row['Count30D']} | "
+            f"SameDay:{row['SameDay']}\n"
+        )
 
     msg += "\n"
+    msg += "PAIR ANALYSIS\n"
 
-    for region_name, region_df in [
-
-        ("MB", df_head_mb),
-        ("MT", df_head_mt),
-        ("MN", df_head_mn)
-
-    ]:
-
-        msg += (
-            f"\n===== {region_name} =====\n"
-        )
-
-        for _, row in region_df.iterrows():
-
-            msg += (
-                f"Dau {row['Head']} | "
-                f"7D:{row['Count7D']} | "
-                f"14D:{row['Count14D']} | "
-                f"30D:{row['Count30D']} | "
-                f"SameDay:{row['SameDay']}\n"
-            )
-
-    # ==================================
-    # PAIR ANALYSIS
-    # ==================================
-
-    today = (
-        df["Date"]
-        .max()
-        .normalize()
+    msg += build_pair_analysis(
+        df,
+        df_missing,
+        region_name
     )
-
-    last_14_days = (
-        today
-        - pd.Timedelta(days=13)
-    )
-
-    last_30_days = (
-        today
-        - pd.Timedelta(days=29)
-    )
-
-    msg += "\n"
-    msg += "===== PAIR ANALYSIS =====\n"
-
-    top3_numbers = (
-        df_missing["Number2D"]
-        .head(3)
-        .tolist()
-    )
-
-    for number2d in top3_numbers:
-
-        last_digit = number2d[-1]
-
-        msg += (
-            f"\n[{number2d}]\n"
-        )
-
-        msg += (
-            f"Last Digit = {last_digit}\n"
-        )
-
-        # ------------------------------
-        # Đầu số đi với đuôi cuối
-        # ------------------------------
-
-        for head in map(str, range(10)):
-
-            count14 = df[
-                (df["Number3D"].str[0] == head)
-                &
-                (df["Number3D"].str[-1] == last_digit)
-                &
-                (df["Date"] >= last_14_days)
-            ].shape[0]
-
-            count30 = df[
-                (df["Number3D"].str[0] == head)
-                &
-                (df["Number3D"].str[-1] == last_digit)
-                &
-                (df["Date"] >= last_30_days)
-            ].shape[0]
-
-            msg += (
-                f"{head} | "
-                f"14D:{count14} | "
-                f"30D:{count30}\n"
-            )
-
-        # ------------------------------
-        # Đầu số đi với chính cặp số
-        # ------------------------------
-
-        msg += (
-            f"Exact {number2d}\n"
-        )
-
-        for head in map(str, range(10)):
-
-            target_3d = (
-                head +
-                number2d
-            )
-
-            count = df[
-                df["Number3D"]
-                ==
-                target_3d
-            ].shape[0]
-
-            msg += (
-                f"{head}:{count}\n"
-            )
 
     return msg
 # ==================================================
@@ -881,22 +781,55 @@ def main():
     # FULL ANALYSIS
     # ==================================
     
-    msg_analysis = build_message(
+    # ==================================
+    # MB
+    # ==================================
+    
+    msg_mb = build_message(
         df,
         df_top10_missing,
-        df_head_mb,
-        df_head_mt,
+        "MB",
+        df_head_mb
+    )
+    
+    print(msg_mb)
+    
+    send_telegram(
+        msg_mb
+    )
+    
+    # ==================================
+    # MT
+    # ==================================
+    
+    msg_mt = build_message(
+        df,
+        df_top10_missing,
+        "MT",
+        df_head_mt
+    )
+    
+    print(msg_mt)
+    
+    send_telegram(
+        msg_mt
+    )
+    
+    # ==================================
+    # MN
+    # ==================================
+    
+    msg_mn = build_message(
+        df,
+        df_top10_missing,
+        "MN",
         df_head_mn
     )
     
-    print(msg_analysis)
+    print(msg_mn)
     
     send_telegram(
-        msg_analysis
-    )
-
-    print(
-        "Completed."
+        msg_mn
     )
 
 # ==================================================
