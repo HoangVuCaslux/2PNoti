@@ -1,12 +1,12 @@
-name: Lottery Daily
+name: 2P Daily
 
 on:
 
   schedule:
 
-    - cron: '0 8 * * *'
-    - cron: '35 9 * * *'
-    - cron: '35 10 * * *'
+    - cron: '6 8 * * *'
+    - cron: '38 9 * * *'
+    - cron: '37 10 * * *'
 
   workflow_dispatch:
 
@@ -21,9 +21,22 @@ jobs:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-python@v5
-
         with:
           python-version: "3.11"
+
+      # ====================================
+      # CHECK GITHUB TIME
+      # ====================================
+
+      - name: Show Scheduler Time
+        run: |
+          echo "==========================="
+          echo "UTC TIME"
+          date
+          echo "==========================="
+          echo "VIETNAM TIME"
+          TZ=Asia/Ho_Chi_Minh date
+          echo "==========================="
 
       - name: Install packages
         run: pip install -r requirements.txt
