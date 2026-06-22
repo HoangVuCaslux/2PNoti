@@ -551,12 +551,120 @@ def build_head_table(
     )
 
     return result
+# ==================================================
+# PAIR ANALYSIS
+# ==================================================
 
+def build_pair_analysis(
+    df,
+    df_top10_missing
+):
+
+    today = (
+        df["Date"]
+        .max()
+        .normalize()
+    )
+
+    last_14_days = (
+        today
+        - pd.Timedelta(days=13)
+    )
+
+    last_30_days = (
+        today
+        - pd.Timedelta(days=29)
+    )
+
+    result_text = ""
+
+    # Top 3 số chưa ra
+    target_numbers = (
+        df_top10_missing
+        ["Number2D"]
+        .head(3)
+        .tolist()
+    )
+
+    for number2d in target_numbers:
+
+        last_digit = number2d[-1]
+
+        result_text += (
+            f"\n===== {number2d} =====\n"
+        )
+
+        # ==================================
+        # PHẦN 1
+        # ĐẦU SỐ ĐI VỚI ĐUÔI CUỐI
+        # Ví dụ 4 của 74
+        # ==================================
+
+        result_text += (
+            f"\nLast Digit = {last_digit}\n"
+        )
+
+        for head in map(str, range(10)):
+
+            temp14 = df[
+                (df["Number3D"].str[0] == head)
+                &
+                (df["Number3D"].str[-1] == last_digit)
+                &
+                (df["Date"] >= last_14_days)
+            ]
+
+            temp30 = df[
+                (df["Number3D"].str[0] == head)
+                &
+                (df["Number3D"].str[-1] == last_digit)
+                &
+                (df["Date"] >= last_30_days)
+            ]
+
+            result_text += (
+                f"{head} | "
+                f"14D:{len(temp14)} | "
+                f"30D:{len(temp30)}\n"
+            )
+
+        # ==================================
+        # PHẦN 2
+        # ĐẦU SỐ ĐI VỚI 74
+        # ==================================
+
+        result_text += (
+            f"\nExact {number2d}\n"
+        )
+
+        for head in map(str, range(10)):
+
+            target_3d = (
+                head +
+                number2d
+            )
+
+            count = (
+                df[
+                    df["Number3D"]
+                    ==
+                    target_3d
+                ]
+                .shape[0]
+            )
+
+            result_text += (
+                f"{head} : {count}\n"
+            )
+
+    return result_text
+    
 # ==================================================
 # TELEGRAM MESSAGE
 # ==================================================
 
 def build_message(
+    df,
     df_missing,
     df_head_mb,
     df_head_mt,
@@ -564,22 +672,14 @@ def build_message(
 ):
 
     msg = ""
-
+    
     msg += (
-        "🎯 2P REPORT\n\n"
+        "📊 2P ANALYSIS\n\n"
     )
 
-    msg += (
-        "TOP 10 SO CHUA RA\n\n"
-    )
-
-    for _, row in df_missing.iterrows():
-
-        msg += (
-            f"{row['Number2D']} | "
-            f"{row['MissingDays']} ngay | "
-            f"{row['LastRegion']}\n"
-        )
+    # ==================================
+    # HEAD ANALYSIS
+    # ==================================
 
     msg += "\n"
 
@@ -603,6 +703,100 @@ def build_message(
                 f"14D:{row['Count14D']} | "
                 f"30D:{row['Count30D']} | "
                 f"SameDay:{row['SameDay']}\n"
+            )
+
+    # ==================================
+    # PAIR ANALYSIS
+    # ==================================
+
+    today = (
+        df["Date"]
+        .max()
+        .normalize()
+    )
+
+    last_14_days = (
+        today
+        - pd.Timedelta(days=13)
+    )
+
+    last_30_days = (
+        today
+        - pd.Timedelta(days=29)
+    )
+
+    msg += "\n"
+    msg += "===== PAIR ANALYSIS =====\n"
+
+    top3_numbers = (
+        df_missing["Number2D"]
+        .head(3)
+        .tolist()
+    )
+
+    for number2d in top3_numbers:
+
+        last_digit = number2d[-1]
+
+        msg += (
+            f"\n[{number2d}]\n"
+        )
+
+        msg += (
+            f"Last Digit = {last_digit}\n"
+        )
+
+        # ------------------------------
+        # Đầu số đi với đuôi cuối
+        # ------------------------------
+
+        for head in map(str, range(10)):
+
+            count14 = df[
+                (df["Number3D"].str[0] == head)
+                &
+                (df["Number3D"].str[-1] == last_digit)
+                &
+                (df["Date"] >= last_14_days)
+            ].shape[0]
+
+            count30 = df[
+                (df["Number3D"].str[0] == head)
+                &
+                (df["Number3D"].str[-1] == last_digit)
+                &
+                (df["Date"] >= last_30_days)
+            ].shape[0]
+
+            msg += (
+                f"{head} | "
+                f"14D:{count14} | "
+                f"30D:{count30}\n"
+            )
+
+        # ------------------------------
+        # Đầu số đi với chính cặp số
+        # ------------------------------
+
+        msg += (
+            f"Exact {number2d}\n"
+        )
+
+        for head in map(str, range(10)):
+
+            target_3d = (
+                head +
+                number2d
+            )
+
+            count = df[
+                df["Number3D"]
+                ==
+                target_3d
+            ].shape[0]
+
+            msg += (
+                f"{head}:{count}\n"
             )
 
     return msg
@@ -661,16 +855,45 @@ def main():
         )
     )
 
-    msg = build_message(
+    # ==================================
+    # MESSAGE 1
+    # TOP 10 MISSING
+    # ==================================
+    
+    msg_missing = "🎯 TOP 10 SO CHUA RA\n\n"
+    
+    for _, row in df_top10_missing.iterrows():
+    
+        msg_missing += (
+            f"{row['Number2D']} | "
+            f"{row['MissingDays']} ngay | "
+            f"{row['LastRegion']}\n"
+        )
+    
+    print(msg_missing)
+    
+    send_telegram(
+        msg_missing
+    )
+    
+    # ==================================
+    # MESSAGE 2
+    # FULL ANALYSIS
+    # ==================================
+    
+    msg_analysis = build_message(
+        df,
         df_top10_missing,
         df_head_mb,
         df_head_mt,
         df_head_mn
     )
-
-    print(msg)
-
-    send_telegram(msg)
+    
+    print(msg_analysis)
+    
+    send_telegram(
+        msg_analysis
+    )
 
     print(
         "Completed."
