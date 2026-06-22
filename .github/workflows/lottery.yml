@@ -1,9 +1,6 @@
-name: 2P Daily V2
+name: 2P Daily
 
 on:
-  schedule:
-    - cron: '*/7 * * * *'
-
   workflow_dispatch:
 
 jobs:
@@ -21,11 +18,14 @@ jobs:
           python-version: "3.11"
 
       # ====================================
-      # CHECK GITHUB TIME
+      # CHECK TIME
       # ====================================
 
-      - name: Show Scheduler Time
+      - name: Show Runtime Time
         run: |
+          echo "==========================="
+          echo "EVENT"
+          echo "${{ github.event_name }}"
           echo "==========================="
           echo "UTC TIME"
           date
@@ -34,8 +34,18 @@ jobs:
           TZ=Asia/Ho_Chi_Minh date
           echo "==========================="
 
+      # ====================================
+      # INSTALL
+      # ====================================
+
       - name: Install packages
-        run: pip install -r requirements.txt
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # ====================================
+      # RUN
+      # ====================================
 
       - name: Run lottery report
         env:
