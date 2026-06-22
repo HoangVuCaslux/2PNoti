@@ -10,6 +10,15 @@ from datetime import timedelta
 # CONFIG
 # ==================================================
 
+REPORT_TYPE = os.getenv(
+    "REPORT_TYPE",
+    "MB"
+)
+
+# ==================================================
+# CONFIG
+# ==================================================
+
 URL_MB = "https://xskt.com.vn/xsmb/200-ngay"
 URL_MT = "https://xskt.com.vn/xsmt/200-ngay"
 URL_MN = "https://xskt.com.vn/xsmn/200-ngay"
@@ -887,58 +896,48 @@ def main():
     
     # ==================================
     # MESSAGE 2
-    # FULL ANALYSIS
+    # REGION ANALYSIS
     # ==================================
     
-    # ==================================
-    # MB
-    # ==================================
+    if REPORT_TYPE == "MN":
     
-    msg_mb = build_message(
-        df,
-        df_top10_missing,
-        "MB",
-        df_head_mb
+        msg_analysis = build_message(
+            df,
+            df_top10_missing,
+            "MN",
+            df_head_mn
+        )
+    
+    elif REPORT_TYPE == "MT":
+    
+        msg_analysis = build_message(
+            df,
+            df_top10_missing,
+            "MT",
+            df_head_mt
+        )
+    
+    else:
+    
+        msg_analysis = build_message(
+            df,
+            df_top10_missing,
+            "MB",
+            df_head_mb
+        )
+    
+    print(
+        f"REPORT_TYPE = {REPORT_TYPE}"
     )
     
-    print(msg_mb)
+    print(msg_analysis)
     
     send_telegram(
-        msg_mb
+        msg_analysis
     )
     
-    # ==================================
-    # MT
-    # ==================================
-    
-    msg_mt = build_message(
-        df,
-        df_top10_missing,
-        "MT",
-        df_head_mt
-    )
-    
-    print(msg_mt)
-    
-    send_telegram(
-        msg_mt
-    )
-    
-    # ==================================
-    # MN
-    # ==================================
-    
-    msg_mn = build_message(
-        df,
-        df_top10_missing,
-        "MN",
-        df_head_mn
-    )
-    
-    print(msg_mn)
-    
-    send_telegram(
-        msg_mn
+    print(
+        "Completed."
     )
 
 # ==================================================
