@@ -452,27 +452,6 @@ def build_head_table(
     weekday_today = (
         today.dayofweek
     )
-    
-    same_day_df = region_df[
-        region_df["Date"]
-        .dt.dayofweek
-        ==
-        weekday_today
-    ]
-    
-    same_day_14d = same_day_df[
-        same_day_df["Date"]
-        >= last_14_days
-    ]
-    
-    same_day_30d = same_day_df[
-        same_day_df["Date"]
-        >= last_30_days
-    ]
-    
-    weekday_today = (
-        today.dayofweek
-    )
 
     region_df = df_source[
         (df_source["Region"] == region_name)
@@ -484,12 +463,6 @@ def build_head_table(
             >= 3
         )
     ].copy()
-
-    # Các kỳ cùng thứ hiện tại
-    same_day_df = region_df[
-        region_df["Date"].dt.dayofweek
-        == weekday_today
-    ]
 
     last_7_days = (
         today
@@ -506,16 +479,28 @@ def build_head_table(
         - pd.Timedelta(days=29)
     )
 
+    same_day_df = region_df[
+        region_df["Date"].dt.dayofweek
+        ==
+        weekday_today
+    ]
+
+    same_day_14d = same_day_df[
+        same_day_df["Date"]
+        >= last_14_days
+    ]
+
+    same_day_30d = same_day_df[
+        same_day_df["Date"]
+        >= last_30_days
+    ]
+
     rows = []
 
     for head in map(str, range(10)):
 
         temp_all = region_df[
             region_df["Head"] == head
-        ]
-
-        temp_same_day = same_day_df[
-            same_day_df["Head"] == head
         ]
 
         count_7d = temp_all[
@@ -530,9 +515,17 @@ def build_head_table(
             temp_all["Date"] >= last_30_days
         ].shape[0]
 
-        same_day_count = (
-            temp_same_day.shape[0]
-        )
+        sd14 = same_day_14d[
+            same_day_14d["Head"] == head
+        ].shape[0]
+
+        sd30 = same_day_30d[
+            same_day_30d["Head"] == head
+        ].shape[0]
+
+        sdall = same_day_df[
+            same_day_df["Head"] == head
+        ].shape[0]
 
         total_count = (
             temp_all.shape[0]
@@ -543,7 +536,9 @@ def build_head_table(
             count_7d,
             count_14d,
             count_30d,
-            same_day_count,
+            sd14,
+            sd30,
+            sdall,
             total_count
         ])
 
@@ -554,13 +549,17 @@ def build_head_table(
             "Count7D",
             "Count14D",
             "Count30D",
-            "SameDay",
+            "SameDay14D",
+            "SameDay30D",
+            "SameDayAll",
             "TotalCount"
         ]
     )
 
-    # Giữ đúng thứ tự 0 -> 9
-    result["Head"] = result["Head"].astype(int)
+    result["Head"] = (
+        result["Head"]
+        .astype(int)
+    )
 
     result = (
         result
@@ -573,11 +572,12 @@ def build_head_table(
         "Rank",
         range(
             1,
-            len(result) + 1
+            len(result)+1
         )
     )
 
     return result
+    
 # ==================================================
 # PAIR ANALYSIS
 # ==================================================
@@ -614,6 +614,27 @@ def build_pair_analysis(
         today
         - pd.Timedelta(days=29)
     )
+
+    weekday_today = (
+        today.dayofweek
+    )
+    
+    same_day_df = region_df[
+        region_df["Date"]
+        .dt.dayofweek
+        ==
+        weekday_today
+    ]
+    
+    same_day_14d = same_day_df[
+        same_day_df["Date"]
+        >= last_14_days
+    ]
+    
+    same_day_30d = same_day_df[
+        same_day_df["Date"]
+        >= last_30_days
+    ]    
 
     result_text = ""
 
@@ -773,9 +794,11 @@ def build_message(
             f"7D:{row['Count7D']} | "
             f"14D:{row['Count14D']} | "
             f"30D:{row['Count30D']} | "
-            f"SameDay:{row['SameDay']}\n"
+            f"SD14:{row['SameDay14D']} | "
+            f"SD30:{row['SameDay30D']} | "
+            f"SDAll:{row['SameDayAll']}\n"
         )
-
+        
     msg += "\n"
     msg += "PAIR ANALYSIS\n"
 
