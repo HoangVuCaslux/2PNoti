@@ -452,6 +452,27 @@ def build_head_table(
     weekday_today = (
         today.dayofweek
     )
+    
+    same_day_df = region_df[
+        region_df["Date"]
+        .dt.dayofweek
+        ==
+        weekday_today
+    ]
+    
+    same_day_14d = same_day_df[
+        same_day_df["Date"]
+        >= last_14_days
+    ]
+    
+    same_day_30d = same_day_df[
+        same_day_df["Date"]
+        >= last_30_days
+    ]
+    
+    weekday_today = (
+        today.dayofweek
+    )
 
     region_df = df_source[
         (df_source["Region"] == region_name)
@@ -636,10 +657,31 @@ def build_pair_analysis(
                 (region_df["Date"] >= last_30_days)
             ]
 
+            same_day_14_count = same_day_14d[
+                (same_day_14d["Number3D"].str[0] == head)
+                &
+                (same_day_14d["Number3D"].str[-1] == last_digit)
+            ].shape[0]
+            
+            same_day_30_count = same_day_30d[
+                (same_day_30d["Number3D"].str[0] == head)
+                &
+                (same_day_30d["Number3D"].str[-1] == last_digit)
+            ].shape[0]
+            
+            same_day_all_count = same_day_df[
+                (same_day_df["Number3D"].str[0] == head)
+                &
+                (same_day_df["Number3D"].str[-1] == last_digit)
+            ].shape[0]
+            
             result_text += (
                 f"{head} | "
                 f"14D:{len(temp14)} | "
-                f"30D:{len(temp30)}\n"
+                f"30D:{len(temp30)} | "
+                f"SD14:{same_day_14_count} | "
+                f"SD30:{same_day_30_count} | "
+                f"SDAll:{same_day_all_count}\n"
             )
 
         # -----------------------------
@@ -657,7 +699,7 @@ def build_pair_analysis(
                 number2d
             )
 
-            count = (
+            count_all = (
                 region_df[
                     region_df["Number3D"]
                     ==
@@ -665,9 +707,40 @@ def build_pair_analysis(
                 ]
                 .shape[0]
             )
-
+            
+            count_sd14 = (
+                same_day_14d[
+                    same_day_14d["Number3D"]
+                    ==
+                    target_3d
+                ]
+                .shape[0]
+            )
+            
+            count_sd30 = (
+                same_day_30d[
+                    same_day_30d["Number3D"]
+                    ==
+                    target_3d
+                ]
+                .shape[0]
+            )
+            
+            count_sdall = (
+                same_day_df[
+                    same_day_df["Number3D"]
+                    ==
+                    target_3d
+                ]
+                .shape[0]
+            )
+            
             result_text += (
-                f"{head}:{count}\n"
+                f"{head} | "
+                f"All:{count_all} | "
+                f"SD14:{count_sd14} | "
+                f"SD30:{count_sd30} | "
+                f"SDAll:{count_sdall}\n"
             )
 
     return result_text
