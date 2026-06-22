@@ -454,8 +454,14 @@ def build_head_table(
     )
 
     region_df = df_source[
-        df_source["Region"]
-        == region_name
+        (df_source["Region"] == region_name)
+        &
+        (
+            df_source["Number"]
+            .astype(str)
+            .str.len()
+            >= 3
+        )
     ].copy()
 
     # Các kỳ cùng thứ hiện tại
@@ -562,7 +568,14 @@ def build_pair_analysis(
 ):
 
     region_df = df[
-        df["Region"] == region_name
+        (df["Region"] == region_name)
+        &
+        (
+            df["Number"]
+            .astype(str)
+            .str.len()
+            >= 3
+        )
     ].copy()
 
     today = (
