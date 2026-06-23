@@ -437,11 +437,6 @@ def build_missing_report(df):
         )
     )
 
-    df_missing = (
-        df_missing
-        .head(10)
-    )
-
     return df_missing
 
 # ==================================================
@@ -899,12 +894,12 @@ def main():
 
     # ==================================
     # ALERT ONLY
-    # Missing >= 4 days
+    # Missing >= 3 days
     # ==================================
 
     df_top10_missing_alert = (
         df_top10_missing[
-            df_top10_missing["MissingDays"] >= 4
+            df_top10_missing["MissingDays"] >= 3
         ]
         .reset_index(drop=True)
     )
@@ -949,7 +944,7 @@ def main():
     if df_top10_missing_alert.empty:
 
         print(
-            "No number missing >= 4 days."
+            "No number missing >= 3 days."
         )
 
         print(
