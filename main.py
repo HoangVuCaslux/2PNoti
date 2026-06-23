@@ -52,7 +52,8 @@ def send_telegram(message):
         url,
         json={
             "chat_id": str(CHAT_ID),
-            "text": message
+            "text": message,
+            "parse_mode": "HTML"
         },
         timeout=30
     )
@@ -710,14 +711,14 @@ def build_pair_analysis(
             )
             
             result_text += (
-                f"14D:{len(temp14)} | "
-                f"30D:{len(temp30)}\n"
+                f"| {'14D:'+str(len(temp14)):<10}"
+                f"| {'30D:'+str(len(temp30)):<10}|\n"
             )
             
             result_text += (
-                f"SD14:{same_day_14_count} | "
-                f"SD30:{same_day_30_count} | "
-                f"SDAll:{same_day_all_count}\n\n"
+                f"| {'SD14:'+str(same_day_14_count):<10}"
+                f"| {'SD30:'+str(same_day_30_count):<10}"
+                f"| {'SDAll:'+str(same_day_all_count):<10}|\n\n"
             )
 
         # -----------------------------
@@ -776,13 +777,13 @@ def build_pair_analysis(
             )
             
             result_text += (
-                f"All:{count_all}\n"
+                f"| {'All:'+str(count_all):<10}|\n"
             )
             
             result_text += (
-                f"SD14:{count_sd14} | "
-                f"SD30:{count_sd30} | "
-                f"SDAll:{count_sdall}\n\n"
+                f"| {'SD14:'+str(count_sd14):<10}"
+                f"| {'SD30:'+str(count_sd30):<10}"
+                f"| {'SDAll:'+str(count_sdall):<10}|\n\n"
             )
 
     return result_text
@@ -809,31 +810,40 @@ def build_message(
     )
 
     for _, row in region_df.iterrows():
-    
+
         msg += (
             f"🔹 Dau {row['Head']}\n"
         )
-    
+
+        msg += "<pre>\n"
+
         msg += (
-            f"7D:{row['Count7D']} | "
-            f"14D:{row['Count14D']} | "
-            f"30D:{row['Count30D']}\n"
+            f"| {'7D:'+str(row['Count7D']):<10}"
+            f"| {'14D:'+str(row['Count14D']):<10}"
+            f"| {'30D:'+str(row['Count30D']):<10}|\n"
         )
-    
+
         msg += (
-            f"SD14:{row['SameDay14D']} | "
-            f"SD30:{row['SameDay30D']} | "
-            f"SDAll:{row['SameDayAll']}\n\n"
+            f"| {'SD14:'+str(row['SameDay14D']):<10}"
+            f"| {'SD30:'+str(row['SameDay30D']):<10}"
+            f"| {'SDAll:'+str(row['SameDayAll']):<10}|\n"
         )
-        
-    msg += "\n"
-    msg += "ĐẦU SỐ ĐI THEO TOP 3 SỐ MISSING LỚN NHẤT\n"
+
+        msg += "</pre>\n\n"
+
+    msg += (
+        "ĐẦU SỐ ĐI THEO TOP 3 SỐ MISSING LỚN NHẤT\n\n"
+    )
+
+    msg += "<pre>\n"
 
     msg += build_pair_analysis(
         df,
         df_missing,
         region_name
     )
+
+    msg += "</pre>"
 
     return msg
 # ==================================================
