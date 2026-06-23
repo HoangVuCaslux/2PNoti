@@ -901,6 +901,18 @@ def main():
         build_missing_report(df)
     )
 
+# ==================================
+# ALERT ONLY
+# Missing >= 4 days
+# ==================================
+
+    df_top10_missing_alert = (
+        df_top10_missing[
+            df_top10_missing["MissingDays"] >= 4
+        ]
+        .reset_index(drop=True)
+    )
+    
     print(
         "Building MB..."
     )
@@ -934,6 +946,26 @@ def main():
         )
     )
 
+# ==================================
+# NO ALERT
+# ==================================
+
+if df_top10_missing_alert.empty:
+
+    print(
+        "No number missing >= 4 days."
+    )
+
+    print(
+        "Skip Telegram notification."
+    )
+
+    print(
+        "Completed."
+    )
+
+    return    
+    
     # ==================================
     # MESSAGE 1
     # TOP 10 MISSING
@@ -941,7 +973,7 @@ def main():
     
     msg_missing = "🎯 TOP 10 SO CHUA RA\n\n"
     
-    for _, row in df_top10_missing.iterrows():
+    for _, row in df_top10_missing_alert.iterrows():
     
         msg_missing += (
             f"{row['Number2D']} | "
@@ -994,7 +1026,7 @@ def main():
     
     pair_messages = build_pair_messages(
         df,
-        df_top10_missing,
+        df_top10_missing_alert,
         REPORT_TYPE
     )
     
