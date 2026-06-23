@@ -658,11 +658,11 @@ def build_pair_analysis(
         last_digit = number2d[-1]
 
         result_text += (
-            f"\n===== {number2d} =====\n"
+            f"\n🎯 So {number2d}\n\n"
         )
 
         result_text += (
-            f"\nLast Digit = {last_digit}\n"
+            f"Duoi {last_digit}\n\n"
         )
 
         # -----------------------------
@@ -706,12 +706,18 @@ def build_pair_analysis(
             ].shape[0]
             
             result_text += (
-                f"{head} | "
+                f"🔹 Dau {head}\n"
+            )
+            
+            result_text += (
                 f"14D:{len(temp14)} | "
-                f"30D:{len(temp30)} | "
+                f"30D:{len(temp30)}\n"
+            )
+            
+            result_text += (
                 f"SD14:{same_day_14_count} | "
                 f"SD30:{same_day_30_count} | "
-                f"SDAll:{same_day_all_count}\n"
+                f"SDAll:{same_day_all_count}\n\n"
             )
 
         # -----------------------------
@@ -766,11 +772,17 @@ def build_pair_analysis(
             )
             
             result_text += (
-                f"{head} | "
-                f"All:{count_all} | "
+                f"🔹 Dau {head}\n"
+            )
+            
+            result_text += (
+                f"All:{count_all}\n"
+            )
+            
+            result_text += (
                 f"SD14:{count_sd14} | "
                 f"SD30:{count_sd30} | "
-                f"SDAll:{count_sdall}\n"
+                f"SDAll:{count_sdall}\n\n"
             )
 
     return result_text
@@ -797,15 +809,21 @@ def build_message(
     )
 
     for _, row in region_df.iterrows():
-
+    
         msg += (
-            f"Dau {row['Head']} | "
+            f"🔹 Dau {row['Head']}\n"
+        )
+    
+        msg += (
             f"7D:{row['Count7D']} | "
             f"14D:{row['Count14D']} | "
-            f"30D:{row['Count30D']} | "
+            f"30D:{row['Count30D']}\n"
+        )
+    
+        msg += (
             f"SD14:{row['SameDay14D']} | "
             f"SD30:{row['SameDay30D']} | "
-            f"SDAll:{row['SameDayAll']}\n"
+            f"SDAll:{row['SameDayAll']}\n\n"
         )
         
     msg += "\n"
