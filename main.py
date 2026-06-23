@@ -879,10 +879,6 @@ def build_pair_messages(
 
     return messages
     
-# ==================================================
-# MAIN
-# ==================================================
-
 def main():
 
     print(
@@ -901,10 +897,10 @@ def main():
         build_missing_report(df)
     )
 
-# ==================================
-# ALERT ONLY
-# Missing >= 4 days
-# ==================================
+    # ==================================
+    # ALERT ONLY
+    # Missing >= 4 days
+    # ==================================
 
     df_top10_missing_alert = (
         df_top10_missing[
@@ -912,7 +908,7 @@ def main():
         ]
         .reset_index(drop=True)
     )
-    
+
     print(
         "Building MB..."
     )
@@ -946,47 +942,50 @@ def main():
         )
     )
 
-# ==================================
-# NO ALERT
-# ==================================
+    # ==================================
+    # NO ALERT
+    # ==================================
 
-if df_top10_missing_alert.empty:
+    if df_top10_missing_alert.empty:
 
-    print(
-        "No number missing >= 4 days."
-    )
+        print(
+            "No number missing >= 4 days."
+        )
 
-    print(
-        "Skip Telegram notification."
-    )
+        print(
+            "Skip Telegram notification."
+        )
 
-    print(
-        "Completed."
-    )
+        print(
+            "Completed."
+        )
 
-    return    
-    
+        return
+
     # ==================================
     # MESSAGE 1
     # TOP 10 MISSING
     # ==================================
-    
+
     msg_missing = "🎯 TOP 10 SO CHUA RA\n\n"
-    
-    for _, row in df_top10_missing_alert.iterrows():
-    
+
+    for _, row in (
+        df_top10_missing_alert
+        .iterrows()
+    ):
+
         msg_missing += (
             f"{row['Number2D']} | "
             f"{row['MissingDays']} ngay | "
             f"{row['LastRegion']}\n"
         )
-    
+
     print(msg_missing)
-    
+
     send_telegram(
         msg_missing
     )
-    
+
     # ==================================
     # MESSAGE 2
     # HEAD ANALYSIS
