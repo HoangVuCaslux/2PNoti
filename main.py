@@ -832,32 +832,52 @@ def build_head_message(
     return msg
 
 # ==================================================
-# PAIR ANALYSIS MESSAGE
+# PAIR ANALYSIS MESSAGES
 # ==================================================
 
-def build_pair_message(
+def build_pair_messages(
     df,
     df_missing,
     region_name
 ):
 
-    msg = ""
+    messages = []
 
-    msg += (
-        f"🎯 {region_name} PAIR ANALYSIS\n\n"
+    top3_numbers = (
+        df_missing["Number2D"]
+        .head(3)
+        .tolist()
     )
 
-    msg += "<pre>\n"
+    for number2d in top3_numbers:
 
-    msg += build_pair_analysis(
-        df,
-        df_missing,
-        region_name
-    )
+        temp_missing = pd.DataFrame(
+            {
+                "Number2D": [number2d]
+            }
+        )
 
-    msg += "</pre>"
+        msg = ""
 
-    return msg
+        msg += (
+            f"🎯 {region_name} PAIR ANALYSIS\n\n"
+        )
+
+        msg += "<pre>\n"
+
+        msg += build_pair_analysis(
+            df,
+            temp_missing,
+            region_name
+        )
+
+        msg += "</pre>"
+
+        messages.append(
+            msg
+        )
+
+    return messages
     
 # ==================================================
 # MAIN
@@ -972,17 +992,19 @@ def main():
     # PAIR ANALYSIS
     # ==================================
     
-    msg_pair = build_pair_message(
+    pair_messages = build_pair_messages(
         df,
         df_top10_missing,
         REPORT_TYPE
     )
     
-    print(msg_pair)
+    for msg_pair in pair_messages:
     
-    send_telegram(
-        msg_pair
-    )
+        print(msg_pair)
+    
+        send_telegram(
+            msg_pair
+        )
     
     print(
         "Completed."
