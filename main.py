@@ -662,7 +662,7 @@ def build_pair_analysis(
         )
 
         result_text += (
-            f"Duoi {last_digit}\n\n"
+            f"Các đầu số thường ra với đuôi {last_digit}\n\n"
         )
 
         # -----------------------------
@@ -725,7 +725,7 @@ def build_pair_analysis(
         # -----------------------------
 
         result_text += (
-            f"\nExact {number2d}\n"
+            f"\nCác đầu số thường ra với {number2d}\n\n"
         )
 
         for head in map(str, range(10)):
@@ -805,7 +805,7 @@ def build_message(
     )
 
     msg += (
-        "HEAD ANALYSIS\n\n"
+        "TẦN SUẤT RA CỦA CÁC ĐẦU SỐ\n\n"
     )
 
     for _, row in region_df.iterrows():
@@ -827,7 +827,7 @@ def build_message(
         )
         
     msg += "\n"
-    msg += "PAIR ANALYSIS\n"
+    msg += "ĐẦU SỐ ĐI THEO TOP 3 SỐ MISSING LỚN NHẤT\n"
 
     msg += build_pair_analysis(
         df,
