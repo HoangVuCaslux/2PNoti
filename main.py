@@ -789,12 +789,10 @@ def build_pair_analysis(
     return result_text
     
 # ==================================================
-# TELEGRAM MESSAGE
+# HEAD ANALYSIS MESSAGE
 # ==================================================
 
-def build_message(
-    df,
-    df_missing,
+def build_head_message(
     region_name,
     region_df
 ):
@@ -831,8 +829,22 @@ def build_message(
 
         msg += "</pre>\n\n"
 
+    return msg
+
+# ==================================================
+# PAIR ANALYSIS MESSAGE
+# ==================================================
+
+def build_pair_message(
+    df,
+    df_missing,
+    region_name
+):
+
+    msg = ""
+
     msg += (
-        "ĐẦU SỐ ĐI THEO TOP 3 SỐ MISSING LỚN NHẤT\n\n"
+        f"🎯 {region_name} PAIR ANALYSIS\n\n"
     )
 
     msg += "<pre>\n"
@@ -846,6 +858,7 @@ def build_message(
     msg += "</pre>"
 
     return msg
+    
 # ==================================================
 # MAIN
 # ==================================================
@@ -924,44 +937,51 @@ def main():
     
     # ==================================
     # MESSAGE 2
-    # REGION ANALYSIS
+    # HEAD ANALYSIS
     # ==================================
     
     if REPORT_TYPE == "MN":
     
-        msg_analysis = build_message(
-            df,
-            df_top10_missing,
-            "MN",
-            df_head_mn
-        )
+        region_df = df_head_mn
     
     elif REPORT_TYPE == "MT":
     
-        msg_analysis = build_message(
-            df,
-            df_top10_missing,
-            "MT",
-            df_head_mt
-        )
+        region_df = df_head_mt
     
     else:
     
-        msg_analysis = build_message(
-            df,
-            df_top10_missing,
-            "MB",
-            df_head_mb
-        )
+        region_df = df_head_mb
+    
+    msg_head = build_head_message(
+        REPORT_TYPE,
+        region_df
+    )
     
     print(
         f"REPORT_TYPE = {REPORT_TYPE}"
     )
     
-    print(msg_analysis)
+    print(msg_head)
     
     send_telegram(
-        msg_analysis
+        msg_head
+    )
+    
+    # ==================================
+    # MESSAGE 3
+    # PAIR ANALYSIS
+    # ==================================
+    
+    msg_pair = build_pair_message(
+        df,
+        df_top10_missing,
+        REPORT_TYPE
+    )
+    
+    print(msg_pair)
+    
+    send_telegram(
+        msg_pair
     )
     
     print(
