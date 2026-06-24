@@ -349,8 +349,7 @@ def prepare_data(df):
 def build_missing_report(df):
 
     today = (
-        df["Date"]
-        .max()
+        pd.Timestamp.now()
         .normalize()
     )
 
@@ -449,8 +448,7 @@ def build_head_table(
 ):
 
     today = (
-        df_source["Date"]
-        .max()
+        pd.Timestamp.now()
         .normalize()
     )
 
@@ -605,8 +603,7 @@ def build_pair_analysis(
     ].copy()
 
     today = (
-        region_df["Date"]
-        .max()
+        pd.Timestamp.now()
         .normalize()
     )
 
@@ -645,7 +642,6 @@ def build_pair_analysis(
 
     target_numbers = (
         df_top10_missing["Number2D"]
-        .head(3)
         .tolist()
     )
 
@@ -884,6 +880,17 @@ def main():
 
     df = prepare_data(df)
 
+    today = (
+        pd.Timestamp.now()
+        .normalize()
+    )
+    
+    dataset_date = (
+        df["Date"]
+        .max()
+        .normalize()
+    )    
+    
     print(
         "Building Missing Report..."
     )
@@ -962,7 +969,11 @@ def main():
     # TOP 10 MISSING
     # ==================================
 
-    msg_missing = "🎯 TOP 10 SO CHUA RA\n\n"
+    msg_missing = (
+        "🎯 SO CHUA RA >= 3 NGAY\n\n"
+        f"Ngày hiện tại : {today:%d/%m/%Y}\n"
+        f"Ngày dữ liệu mới nhất : {dataset_date:%d/%m/%Y}\n\n"
+    )
 
     for _, row in (
         df_top10_missing_alert
