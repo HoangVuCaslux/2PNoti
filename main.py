@@ -343,7 +343,7 @@ def prepare_data(df):
 
 # ==================================================
 # OUTPUT 1
-# TOP 10 SO CHUA RA
+# TOP 10 
 # ==================================================
 
 def build_missing_report(df):
@@ -970,7 +970,7 @@ def main():
     # ==================================
 
     msg_missing = (
-        "🎯 SO CHUA RA >= 3 NGAY\n\n"
+        "🎯 MISSING NUMBER >= 3 DAYs\n\n"
         f"Ngày hiện tại : {today:%d/%m/%Y}\n"
         f"Ngày dữ liệu mới nhất : {dataset_date:%d/%m/%Y}\n\n"
     )
