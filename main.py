@@ -313,6 +313,23 @@ def load_data():
     return df
 
 # ==================================================
+# CURRENT DRAW DATE
+# ==================================================
+
+def get_current_draw_date():
+
+    now = pd.Timestamp.now()
+
+    # Trước 19h vẫn coi là kỳ hôm qua
+    if now.hour < 19:
+        return (
+            now.normalize()
+            - pd.Timedelta(days=1)
+        )
+
+    return now.normalize()
+
+# ==================================================
 # PREPARE
 # ==================================================
 
@@ -348,11 +365,7 @@ def prepare_data(df):
 
 def build_missing_report(df):
 
-    today = (
-        df["Date"]
-        .max()
-        .normalize()
-    )
+    today = get_current_draw_date()
     
     all_2d = [
         f"{i:02}"
@@ -454,13 +467,10 @@ def build_head_table(
         .max()
         .normalize()
     )
-
-    # Ngày hiện tại (dùng để xác định SameDay)
-    today = (
-        pd.Timestamp.now()
-        .normalize()
-    )
-
+    
+    # Ngày dùng để tính SameDay
+    today = get_current_draw_date()
+    
     # Thứ đang dùng để tính SameDay
     weekday_today = (
         today.dayofweek
@@ -616,17 +626,17 @@ def build_pair_analysis(
         )
     ].copy()
 
+    # Ngày dữ liệu mới nhất
     dataset_date = (
         region_df["Date"]
         .max()
         .normalize()
     )
     
-    today = (
-        pd.Timestamp.now()
-        .normalize()
-    )
+    # Ngày dùng để tính SameDay
+    today = get_current_draw_date()
     
+    # Các khoảng thời gian vẫn tính theo dataset
     last_14_days = (
         dataset_date
         - pd.Timedelta(days=13)
@@ -637,6 +647,7 @@ def build_pair_analysis(
         - pd.Timedelta(days=29)
     )
     
+    # Thứ dùng để tính SameDay
     weekday_today = (
         today.dayofweek
     )
