@@ -468,9 +468,12 @@ def build_head_table(
         .normalize()
     )
     
-    # Ngày dùng để tính SameDay
-    today = get_current_draw_date()
-    
+    # Ngày hiện tại dùng để tính SameDay
+    today = (
+        pd.Timestamp.now()
+        .normalize()
+    )
+        
     # Thứ đang dùng để tính SameDay
     weekday_today = (
         today.dayofweek
@@ -633,8 +636,11 @@ def build_pair_analysis(
         .normalize()
     )
     
-    # Ngày dùng để tính SameDay
-    today = get_current_draw_date()
+    # Ngày hiện tại dùng để tính SameDay
+    today = (
+        pd.Timestamp.now()
+        .normalize()
+    )
     
     # Các khoảng thời gian vẫn tính theo dataset
     last_14_days = (
@@ -1034,8 +1040,7 @@ def main():
 
     msg_missing = (
         "🎯 MISSING NUMBER >= 3 DAYs\n\n"
-        f"📅 Dữ liệu mới nhất vào : {dataset_date:%d/%m/%Y}\n"
-        f"📆 Ngày so sánh : {weekday_name}\n\n"
+        f"📅 Dữ liệu mới nhất vào : {dataset_date:%d/%m/%Y}\n\n"
     )
 
     for _, row in (
