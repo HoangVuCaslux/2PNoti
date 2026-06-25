@@ -448,39 +448,33 @@ def build_head_table(
     region_name
 ):
 
-    today = (
+    dataset_date = (
         df_source["Date"]
         .max()
         .normalize()
     )
-
+    
+    today = (
+        pd.Timestamp.now()
+        .normalize()
+    )
+    
     weekday_today = (
         today.dayofweek
     )
-
-    region_df = df_source[
-        (df_source["Region"] == region_name)
-        &
-        (
-            df_source["Number"]
-            .astype(str)
-            .str.len()
-            >= 3
-        )
-    ].copy()
-
+    
     last_7_days = (
-        today
+        dataset_date
         - pd.Timedelta(days=6)
     )
-
+    
     last_14_days = (
-        today
+        dataset_date
         - pd.Timedelta(days=13)
     )
-
+    
     last_30_days = (
-        today
+        dataset_date
         - pd.Timedelta(days=29)
     )
 
@@ -604,22 +598,27 @@ def build_pair_analysis(
         )
     ].copy()
 
-    today = (
+    dataset_date = (
         region_df["Date"]
         .max()
         .normalize()
     )
-
+    
+    today = (
+        pd.Timestamp.now()
+        .normalize()
+    )
+    
     last_14_days = (
-        today
+        dataset_date
         - pd.Timedelta(days=13)
     )
-
+    
     last_30_days = (
-        today
+        dataset_date
         - pd.Timedelta(days=29)
     )
-
+    
     weekday_today = (
         today.dayofweek
     )
@@ -795,13 +794,13 @@ def build_head_message(
     msg = ""
 
     weekday_name = {
-        0: "Thu Hai",
-        1: "Thu Ba",
-        2: "Thu Tu",
-        3: "Thu Nam",
-        4: "Thu Sau",
-        5: "Thu Bay",
-        6: "Chu Nhat"
+        0: "Thứ 2",
+        1: "Thứ 3",
+        2: "Thứ 4",
+        3: "Thứ 5",
+        4: "Thứ 6",
+        5: "Thứ 7",
+        6: "Chủ Nhật"
     }[
         dataset_date.dayofweek
     ]    
@@ -905,13 +904,13 @@ def main():
     )
     
     weekday_name = {
-        0: "Thu Hai",
-        1: "Thu Ba",
-        2: "Thu Tu",
-        3: "Thu Nam",
-        4: "Thu Sau",
-        5: "Thu Bay",
-        6: "Chu Nhat"
+        0: "Thứ 2",
+        1: "Thứ 3",
+        2: "Thứ 4",
+        3: "Thứ 5",
+        4: "Thứ 6",
+        5: "Thứ 7",
+        6: "Chủ Nhật"
     }[
         dataset_date.dayofweek
     ]
