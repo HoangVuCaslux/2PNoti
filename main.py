@@ -349,7 +349,7 @@ def prepare_data(df):
 def build_missing_report(df):
 
     today = (
-        df_source["Date"]
+        df["Date"]
         .max()
         .normalize()
     )
@@ -605,7 +605,7 @@ def build_pair_analysis(
     ].copy()
 
     today = (
-        df["Date"]
+        region_df["Date"]
         .max()
         .normalize()
     )
