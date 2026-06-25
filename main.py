@@ -458,6 +458,17 @@ def build_head_table(
         pd.Timestamp.now()
         .normalize()
     )
+
+    region_df = df_source[
+        (df_source["Region"] == region_name)
+        &
+        (
+            df_source["Number"]
+            .astype(str)
+            .str.len()
+            >= 3
+        )
+    ].copy()
     
     weekday_today = (
         today.dayofweek
