@@ -968,6 +968,35 @@ def main():
     )
 
     # ==================================
+    # REPORT INFO
+    # ==================================
+    
+    if REPORT_TYPE == "MN":
+    
+        dataset_date = dataset_date_mn
+        weekday_today = weekday_mn
+    
+    elif REPORT_TYPE == "MT":
+    
+        dataset_date = dataset_date_mt
+        weekday_today = weekday_mt
+    
+    else:
+    
+        dataset_date = dataset_date_mb
+        weekday_today = weekday_mb
+    
+    weekday_name = {
+        0: "Thứ 2",
+        1: "Thứ 3",
+        2: "Thứ 4",
+        3: "Thứ 5",
+        4: "Thứ 6",
+        5: "Thứ 7",
+        6: "Chủ Nhật"
+    }[weekday_today]
+    
+    # ==================================
     # NO ALERT
     # ==================================
 
@@ -1023,20 +1052,14 @@ def main():
     if REPORT_TYPE == "MN":
     
         region_df = df_head_mn
-        dataset_date = dataset_date_mn
-        weekday_today = weekday_mn
     
     elif REPORT_TYPE == "MT":
     
         region_df = df_head_mt
-        dataset_date = dataset_date_mt
-        weekday_today = weekday_mt
     
     else:
     
         region_df = df_head_mb
-        dataset_date = dataset_date_mb
-        weekday_today = weekday_mb
     
     msg_head = build_head_message(
         REPORT_TYPE,
