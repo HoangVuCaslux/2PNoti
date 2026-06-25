@@ -448,17 +448,25 @@ def build_head_table(
     region_name
 ):
 
+    # Ngày dữ liệu mới nhất
     dataset_date = (
         df_source["Date"]
         .max()
         .normalize()
     )
-    
+
+    # Ngày hiện tại (dùng để xác định SameDay)
     today = (
         pd.Timestamp.now()
         .normalize()
     )
 
+    # Thứ đang dùng để tính SameDay
+    weekday_today = (
+        today.dayofweek
+    )
+
+    # Chỉ lấy dữ liệu của miền
     region_df = df_source[
         (df_source["Region"] == region_name)
         &
@@ -469,40 +477,35 @@ def build_head_table(
             >= 3
         )
     ].copy()
-    
-    weekday_today = (
-        today.dayofweek
-    )
-    
+
+    # Các khoảng thời gian vẫn tính theo dataset
     last_7_days = (
         dataset_date
         - pd.Timedelta(days=6)
     )
-    
+
     last_14_days = (
         dataset_date
         - pd.Timedelta(days=13)
     )
-    
+
     last_30_days = (
         dataset_date
         - pd.Timedelta(days=29)
     )
 
+    # SameDay tính theo thứ của ngày hiện tại
     same_day_df = region_df[
         region_df["Date"].dt.dayofweek
-        ==
-        weekday_today
+        == weekday_today
     ]
 
     same_day_14d = same_day_df[
-        same_day_df["Date"]
-        >= last_14_days
+        same_day_df["Date"] >= last_14_days
     ]
 
     same_day_30d = same_day_df[
-        same_day_df["Date"]
-        >= last_30_days
+        same_day_df["Date"] >= last_30_days
     ]
 
     rows = []
@@ -586,7 +589,11 @@ def build_head_table(
         )
     )
 
-    return result
+    return (
+        result,
+        dataset_date,
+        weekday_today
+    )
     
 # ==================================================
 # PAIR ANALYSIS
@@ -799,7 +806,8 @@ def build_pair_analysis(
 def build_head_message(
     region_name,
     region_df,
-    dataset_date
+    dataset_date,
+    weekday_today
 ):
 
     msg = ""
@@ -813,7 +821,7 @@ def build_head_message(
         5: "Thứ 7",
         6: "Chủ Nhật"
     }[
-        dataset_date.dayofweek
+        weekday_today
     ]    
         
     msg += (
@@ -908,24 +916,6 @@ def main():
 
     df = prepare_data(df)
     
-    dataset_date = (
-        df["Date"]
-        .max()
-        .normalize()
-    )
-    
-    weekday_name = {
-        0: "Thứ 2",
-        1: "Thứ 3",
-        2: "Thứ 4",
-        3: "Thứ 5",
-        4: "Thứ 6",
-        5: "Thứ 7",
-        6: "Chủ Nhật"
-    }[
-        dataset_date.dayofweek
-    ]
-    
     print(
         "Building Missing Report..."
     )
@@ -950,33 +940,31 @@ def main():
         "Building MB..."
     )
 
-    df_head_mb = (
-        build_head_table(
-            df,
-            "MB"
-        )
+    (
+        df_head_mb,
+        dataset_date_mb,
+        weekday_mb
+    ) = build_head_table(
+        df,
+        "MB"
     )
-
-    print(
-        "Building MT..."
+    
+    (
+        df_head_mt,
+        dataset_date_mt,
+        weekday_mt
+    ) = build_head_table(
+        df,
+        "MT"
     )
-
-    df_head_mt = (
-        build_head_table(
-            df,
-            "MT"
-        )
-    )
-
-    print(
-        "Building MN..."
-    )
-
-    df_head_mn = (
-        build_head_table(
-            df,
-            "MN"
-        )
+    
+    (
+        df_head_mn,
+        dataset_date_mn,
+        weekday_mn
+    ) = build_head_table(
+        df,
+        "MN"
     )
 
     # ==================================
@@ -1035,19 +1023,26 @@ def main():
     if REPORT_TYPE == "MN":
     
         region_df = df_head_mn
+        dataset_date = dataset_date_mn
+        weekday_today = weekday_mn
     
     elif REPORT_TYPE == "MT":
     
         region_df = df_head_mt
+        dataset_date = dataset_date_mt
+        weekday_today = weekday_mt
     
     else:
     
         region_df = df_head_mb
+        dataset_date = dataset_date_mb
+        weekday_today = weekday_mb
     
     msg_head = build_head_message(
         REPORT_TYPE,
         region_df,
-        dataset_date
+        dataset_date,
+        weekday_today
     )
     
     print(
