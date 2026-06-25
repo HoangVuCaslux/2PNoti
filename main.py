@@ -349,7 +349,8 @@ def prepare_data(df):
 def build_missing_report(df):
 
     today = (
-        pd.Timestamp.now()
+        df["Date"]
+        .max()
         .normalize()
     )
 
@@ -448,7 +449,8 @@ def build_head_table(
 ):
 
     today = (
-        pd.Timestamp.now()
+        df["Date"]
+        .max()
         .normalize()
     )
 
@@ -603,7 +605,8 @@ def build_pair_analysis(
     ].copy()
 
     today = (
-        pd.Timestamp.now()
+        df["Date"]
+        .max()
         .normalize()
     )
 
@@ -785,13 +788,28 @@ def build_pair_analysis(
 
 def build_head_message(
     region_name,
-    region_df
+    region_df,
+    dataset_date
 ):
 
     msg = ""
 
+    weekday_name = {
+        0: "Thu Hai",
+        1: "Thu Ba",
+        2: "Thu Tu",
+        3: "Thu Nam",
+        4: "Thu Sau",
+        5: "Thu Bay",
+        6: "Chu Nhat"
+    }[
+        dataset_date.dayofweek
+    ]    
+        
     msg += (
         f"📊 {region_name} ANALYSIS\n\n"
+        f"📅 Dữ liệu mới nhất vào : {dataset_date:%d/%m/%Y}\n"
+        f"📆 Ngày so sánh : {weekday_name}\n\n"
     )
 
     msg += (
@@ -879,17 +897,24 @@ def main():
     df = load_data()
 
     df = prepare_data(df)
-
-    today = (
-        pd.Timestamp.now()
-        .normalize()
-    )
     
     dataset_date = (
         df["Date"]
         .max()
         .normalize()
-    )    
+    )
+    
+    weekday_name = {
+        0: "Thu Hai",
+        1: "Thu Ba",
+        2: "Thu Tu",
+        3: "Thu Nam",
+        4: "Thu Sau",
+        5: "Thu Bay",
+        6: "Chu Nhat"
+    }[
+        dataset_date.dayofweek
+    ]
     
     print(
         "Building Missing Report..."
@@ -971,8 +996,8 @@ def main():
 
     msg_missing = (
         "🎯 MISSING NUMBER >= 3 DAYs\n\n"
-        f"Ngày hiện tại : {today:%d/%m/%Y}\n"
-        f"Ngày dữ liệu mới nhất : {dataset_date:%d/%m/%Y}\n\n"
+        f"📅 Dữ liệu mới nhất vào : {dataset_date:%d/%m/%Y}\n"
+        f"📆 Ngày so sánh : {weekday_name}\n\n"
     )
 
     for _, row in (
@@ -1011,7 +1036,8 @@ def main():
     
     msg_head = build_head_message(
         REPORT_TYPE,
-        region_df
+        region_df,
+        dataset_date
     )
     
     print(
