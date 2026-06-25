@@ -349,11 +349,11 @@ def prepare_data(df):
 def build_missing_report(df):
 
     today = (
-        df["Date"]
+        df_source["Date"]
         .max()
         .normalize()
     )
-
+    
     all_2d = [
         f"{i:02}"
         for i in range(100)
@@ -449,7 +449,7 @@ def build_head_table(
 ):
 
     today = (
-        df["Date"]
+        df_source["Date"]
         .max()
         .normalize()
     )
