@@ -310,7 +310,12 @@ def load_data():
         df["Date"].nunique()
     )
 
-    return df
+    return (
+    df,
+    df_mb,
+    df_mt,
+    df_mn
+    )
 
 # ==================================================
 # CURRENT DRAW DATE
@@ -929,8 +934,13 @@ def main():
         "Loading data..."
     )
 
-    df = load_data()
-
+    (
+        df,
+        df_mb,
+        df_mt,
+        df_mn
+    ) = load_data()
+    
     df = prepare_data(df)
     
     print(
@@ -1116,6 +1126,97 @@ def main():
     print(
         "Completed."
     )
+
+# ==================================================
+# SCRAPE STATUS MESSAGE
+# ==================================================
+
+def build_scrape_status_message(
+    df_mb,
+    df_mt,
+    df_mn
+):
+
+    run_time = (
+        pd.Timestamp.now()
+        .strftime("%d/%m/%Y %H:%M")
+    )
+
+    expected_records = {
+        "MB": 27,
+        "MT": 54,
+        "MN": 54
+    }
+
+    draw_date = get_current_draw_date()
+
+    msg = ""
+
+    msg += (
+        "🛰 SCRAPE STATUS\n\n"
+    )
+
+    msg += (
+        f"Run Time : {run_time}\n"
+    )
+
+    raw_data = {
+        "MB": df_mb,
+        "MT": df_mt,
+        "MN": df_mn
+    }
+
+    for region, region_df in raw_data.items():
+
+        latest_date = (
+            region_df["Date"]
+            .max()
+            .normalize()
+        )
+
+        records = (
+            region_df[
+                region_df["Date"]
+                == latest_date
+            ]
+            .shape[0]
+        )
+
+        expected = (
+            expected_records[region]
+        )
+
+        if latest_date < draw_date:
+
+            status = "⏳ Waiting"
+
+        elif records < expected:
+
+            status = "⚠ Partial"
+
+        else:
+
+            status = "✅ Updated"
+
+        msg += (
+            f"{region}\n"
+        )
+
+        msg += (
+            f"Status      : {status}\n"
+        )
+
+        msg += (
+            f"Latest Date : "
+            f"{latest_date:%d/%m/%Y}\n"
+        )
+
+        msg += (
+            f"Records     : "
+            f"{records} / {expected}\n\n"
+        )
+
+    return msg
 
 # ==================================================
 # RUN
